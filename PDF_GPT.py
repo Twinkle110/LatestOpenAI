@@ -98,7 +98,7 @@ def get_vectorstore(text_chunks):
 def get_conversation_chain(vectorstore):
 
     prompt_template = """
-    You are an intelligent AI which analyses text from documents and answers the user's questions. Please answer in as much detail as possible, so that the user does not have to 
+    You are an intelligent AI which analyses text from documents and Pdf and answers the user's questions. Please answer in as much detail as possible, so that the user does not have to 
     revisit the document. If you don't know the answer, say that you don't know, and avoid making up things.Please provide output in 4 sections.\n\n
     Context:\n {context}?\n
     Question: \n{question}\n
