@@ -17,7 +17,7 @@ def app():
      
     st.write("""Here, you can interact with our chatbot to get insights on your data""")
 
-    st.write("**Created by Global Talent Analytics**")
+    st.write("**Developed by Global Talent Analytics**")
     #Contact
     with st.sidebar.expander("📬 Contact"):
 
