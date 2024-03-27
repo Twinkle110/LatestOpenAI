@@ -108,7 +108,7 @@ def get_conversation_chain(vectorstore):
     llm = ChatOpenAI(
             #model_name="gpt-3.5-turbo",
             model_name="gpt-4-1106-preview",
-            openai_api_key=OPENAI_API_KEY,
+            #openai_api_key=OPENAI_API_KEY,
             
     )
     # llm = HuggingFaceHub(repo_id="google/flan-t5-xxl", model_kwargs={"temperature":0.5, "max_length":512})
