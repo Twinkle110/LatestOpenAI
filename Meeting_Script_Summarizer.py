@@ -1,15 +1,14 @@
 import streamlit as st
-from io import StringIO
 import os
+from io import BytesIO
+import docx2txt # Import the docx2txt library
 
 from dotenv import load_dotenv
-from langchain.document_loaders import TextLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings.openai import OpenAIEmbeddings
 from langchain.vectorstores import FAISS
 from langchain.llms import OpenAI
 from langchain.chains import RetrievalQA
-from langchain.schema import AIMessage, HumanMessage, SystemMessage
 
 load_dotenv()
 
@@ -25,9 +24,12 @@ def generate_minutes(text_data, system_message_content, vector_store):
 
 def app():
     # System message
-    st.write("Please upload a .txt file to generate minutes of the meeting.")
+    st.write("Please upload a .docx file to generate minutes of the meeting.")
 
-    uploaded_file = st.file_uploader("Choose a .txt file", "txt")
+    uploaded_file = st.file_uploader("Choose a file", type=["txt", "docx"])
+
+    # Chat option
+    #user_question = st.text_input("Ask a question about the document:")
 
     # Enable button only if file is uploaded
     if uploaded_file is not None:
@@ -36,19 +38,25 @@ def app():
         submit_button = None
 
     if submit_button:
-        # To convert to a string based IO:
-        stringio = StringIO(uploaded_file.getvalue().decode("utf-8"))
-
-        # To read file as string:
-        string_data = stringio.read()
-
+        # Read the uploaded file
+        file_content = uploaded_file.read()
+        
+        if uploaded_file.type == "text/plain":  # If file is .txt
+            text_data = file_content.decode("utf-8")
+        elif uploaded_file.type == "application/vnd.openxmlformats-officedocument.wordprocessingml.document":  # If file is .docx
+            docx_data = BytesIO(file_content)
+            text_data = docx2txt.process(docx_data)
+        else:
+            st.error("Unsupported file type. Please upload a .txt or .docx file.")
+            return
+        
         text_splitter = RecursiveCharacterTextSplitter(
             chunk_size=1000,
             chunk_overlap=20,
             length_function=len,
         )
 
-        texts = text_splitter.split_text(string_data)
+        texts = text_splitter.split_text(text_data)
 
         embeddings = OpenAIEmbeddings(openai_api_key=os.environ.get("OPENAI_API_KEY"))
 
@@ -57,12 +65,12 @@ def app():
         # Access system message content
         system_message_content = "You are an AI assistant tasked with generating Meeting Minutes (MOM) from the provided text, including details such as Participants, Date, and Time. Additionally, you are responsible for conducting Sentiment Analysis on the text and producing a 'Who Said What' section with insightful details. Please ensure to follow the specified sequence: 1) Minutes of Meeting, 2) Sentiment Analysis, 3) Who Said What, 4) Next Steps" 
 
-        result = generate_minutes(string_data, system_message_content, vector_store)
+        result = generate_minutes(text_data, system_message_content, vector_store)
         st.write("**Output:**")
         st.write(result["result"])
     else:
         st.warning("Please upload a document to proceed.")
 
 # Call the app function to execute it
-if __name__ == '__app__':
+if __name__ == '__main__':
     app()
