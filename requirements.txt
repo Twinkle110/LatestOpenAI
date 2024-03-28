@@ -50,6 +50,7 @@ wincertstore
 #xmlrpclib
 zstandard==0.21.0
 streamlit-option-menu
+docx2txt
 
 # uncomment to use huggingface llms
 # huggingface-hub==0.14.1
